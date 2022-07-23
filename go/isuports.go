@@ -715,7 +715,7 @@ func tenantsBillingHandler(c echo.Context) error {
 		return fmt.Errorf("error Select tenant: %w", err)
 	}
 
-	wg := sync.WaitGroup{}
+	wg := &sync.WaitGroup{}
 	tenantBillings := make([]TenantWithBilling, len(ts), len(ts))
 
 	for i, t := range ts {
