@@ -1159,8 +1159,9 @@ func competitionScoreHandler(c echo.Context) error {
 	for _, ps := range playerScoreRows {
 		if _, err := tenantDB.NamedExecContext(
 			ctx,
-			"INSERT INTO player_score (id, tenant_id, player_id, competition_id, score, row_num, created_at, updated_at) VALUES (:id, :tenant_id, :player_id, :competition_id, :score, :row_num, :created_at, :updated_at)"+
-				" ON DUPLICATE KEY UPDATE score=VALUES(score), row_num=VALUES(row_num), updated_at=VALUES(updated_at)",
+			"INSERT INTO player_score(id, tenant_id, player_id, competition_id, score, row_num, created_at, updated_at) "+
+				"VALUES (:id, :tenant_id, :player_id, :competition_id, :score, :row_num, :created_at, :updated_at) "+
+				"ON DUPLICATE KEY UPDATE score=VALUES(score), row_num=VALUES(row_num), updated_at=VALUES(updated_at)",
 			ps,
 		); err != nil {
 			return fmt.Errorf(
