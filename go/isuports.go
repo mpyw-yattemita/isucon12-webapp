@@ -70,7 +70,7 @@ func connectAdminDB() (*sqlx.DB, error) {
 	config.DBName = getEnv("ISUCON_DB_NAME", "isuports")
 	config.ParseTime = true
 	dsn := config.FormatDSN()
-	return sqlx.Open("nrmysql", dsn)
+	return sqlx.Open("mysql", dsn)
 }
 
 // テナントDBのパスを返す
@@ -82,7 +82,7 @@ func tenantDBPath(id int64) string {
 // テナントDBに接続する
 func connectToTenantDB(id int64) (*sqlx.DB, error) {
 	p := tenantDBPath(id)
-	db, err := sqlx.Open("nrsqlite3", fmt.Sprintf("file:%s?mode=rw", p))
+	db, err := sqlx.Open("sqlite3", fmt.Sprintf("file:%s?mode=rw", p))
 	if err != nil {
 		return nil, fmt.Errorf("failed to open tenant DB: %w", err)
 	}
