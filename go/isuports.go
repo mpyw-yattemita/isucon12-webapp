@@ -722,8 +722,8 @@ func tenantsBillingHandler(c echo.Context) error {
 		if beforeID != 0 && beforeID <= t.ID {
 			continue
 		}
+		wg.Add(1)
 		go func(t TenantRow) {
-			wg.Add(1)
 			defer wg.Done()
 			err := func(t TenantRow) error {
 				tb := TenantWithBilling{
