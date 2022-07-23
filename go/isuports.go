@@ -1157,10 +1157,10 @@ func competitionScoreHandler(c echo.Context) error {
 	//	return fmt.Errorf("error Delete player_score: tenantID=%d, competitionID=%s, %w", v.tenantID, competitionID, err)
 	//}
 	for _, ps := range playerScoreRows {
-		if _, err := tenantDB.ExecContext(
+		if _, err := tenantDB.NamedExecContext(
 			ctx,
 			"INSERT INTO player_score(id, tenant_id, player_id, competition_id, score, row_num, created_at, updated_at) "+
-				"VALUES (?, ?, ?, ?, ?, ?, ?, ?) "+
+				"VALUES (:id, :tenant_id, :player_id, :competition_id, :score, :row_num, :created_at, :updated_at) "+
 				"ON DUPLICATE KEY UPDATE score=VALUES(score), row_num=VALUES(row_num), updated_at=VALUES(updated_at)",
 			ps,
 		); err != nil {
