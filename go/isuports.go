@@ -716,7 +716,7 @@ func tenantsBillingHandler(c echo.Context) error {
 	}
 
 	wg := sync.WaitGroup{}
-	tenantBillings := make([]TenantWithBilling, 0, len(ts))
+	tenantBillings := make([]TenantWithBilling, len(ts), len(ts))
 
 	for i, t := range ts {
 		i := i
