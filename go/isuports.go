@@ -712,18 +712,32 @@ func tenantsBillingHandler(c echo.Context) error {
 	// テナントの課金とする
 	ts := []TenantRow{}
 	if beforeID == 0 {
+		if err := adminDB.SelectContext(ctx, &ts, "SELECT * FROM tenant ORDER BY id DESC"); err != nil {
+			return fmt.Errorf("error Select tenant (first): %w", err)
+		}
+		for i, t := range ts {
+			log.Printf("1:first[%d]: %d\n", i, t.ID)
+		}
+		ts = []TenantRow{}
 		if err := adminDB.SelectContext(ctx, &ts, "SELECT * FROM tenant ORDER BY id DESC LIMIT 10"); err != nil {
 			return fmt.Errorf("error Select tenant (first): %w", err)
 		}
 		for i, t := range ts {
-			log.Printf("first[%d]: %d\n", i, t.ID)
+			log.Printf("2:first[%d]: %d\n", i, t.ID)
 		}
 	} else {
 		if err := adminDB.SelectContext(ctx, &ts, "SELECT * FROM tenant WHERE id < ? ORDER BY id DESC LIMIT 10", beforeID); err != nil {
 			return fmt.Errorf("error Select tenant (paginated): %w", err)
 		}
 		for i, t := range ts {
-			log.Printf("paginated(before_id=%d)[%d]: %d\n", beforeID, i, t.ID)
+			log.Printf("1:paginated(before_id=%d)[%d]: %d\n", beforeID, i, t.ID)
+		}
+		ts = []TenantRow{}
+		if err := adminDB.SelectContext(ctx, &ts, "SELECT * FROM tenant WHERE id < ? ORDER BY id DESC LIMIT 10", beforeID); err != nil {
+			return fmt.Errorf("error Select tenant (paginated): %w", err)
+		}
+		for i, t := range ts {
+			log.Printf("2:paginated(before_id=%d)[%d]: %d\n", beforeID, i, t.ID)
 		}
 	}
 
