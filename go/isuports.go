@@ -6,6 +6,10 @@ import (
 	"encoding/csv"
 	"errors"
 	"fmt"
+	_ "github.com/newrelic/go-agent/_integrations/nrsqlite3"
+	"github.com/newrelic/go-agent/v3/integrations/nrecho-v4"
+	_ "github.com/newrelic/go-agent/v3/integrations/nrmysql"
+	"github.com/newrelic/go-agent/v3/newrelic"
 	"io"
 	"net/http"
 	"os"
@@ -67,7 +71,7 @@ func connectAdminDB() (*sqlx.DB, error) {
 	config.DBName = getEnv("ISUCON_DB_NAME", "isuports")
 	config.ParseTime = true
 	dsn := config.FormatDSN()
-	return sqlx.Open("mysql", dsn)
+	return sqlx.Open("nrmysql", dsn)
 }
 
 // テナントDBのパスを返す
@@ -79,7 +83,7 @@ func tenantDBPath(id int64) string {
 // テナントDBに接続する
 func connectToTenantDB(id int64) (*sqlx.DB, error) {
 	p := tenantDBPath(id)
-	db, err := sqlx.Open(sqliteDriverName, fmt.Sprintf("file:%s?mode=rw", p))
+	db, err := sqlx.Open("nrsqlite3", fmt.Sprintf("file:%s?mode=rw", p))
 	if err != nil {
 		return nil, fmt.Errorf("failed to open tenant DB: %w", err)
 	}
@@ -150,6 +154,20 @@ func Run() {
 		e.Logger.Panicf("error initializeSQLLogger: %s", err)
 	}
 	defer sqlLogger.Close()
+
+	var app *newrelic.Application
+	app, err = newrelic.NewApplication(
+		newrelic.ConfigAppName(os.Getenv("NEW_RELIC_APP_NAME")),
+		newrelic.ConfigLicense(os.Getenv("NEW_RELIC_LICENSE_KEY")),
+		newrelic.ConfigAppLogEnabled(false),
+	)
+	if err != nil {
+		fmt.Errorf("failed to init newrelic NewApplication reaseon: %v", err)
+	} else {
+		fmt.Println("newrelic init success")
+	}
+
+	e.Use(nrecho.Middleware(app))
 
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
