@@ -1396,7 +1396,7 @@ func competitionRankingHandler(c echo.Context) error {
 
 	ranks := make([]CompetitionRank, 0, len(pss))
 	scoredPlayerSet := make(map[string]struct{}, len(pss))
-	for _, ps := range pss {
+	for i, ps := range pss {
 		// player_scoreが同一player_id内ではrow_numの降順でソートされているので
 		// 現れたのが2回目以降のplayer_idはより大きいrow_numでスコアが出ているとみなせる
 		if _, ok := scoredPlayerSet[ps.PlayerID]; ok {
@@ -1408,7 +1408,7 @@ func competitionRankingHandler(c echo.Context) error {
 			return fmt.Errorf("error retrievePlayer: %w", err)
 		}
 		ranks = append(ranks, CompetitionRank{
-			Rank:              rankAfter + 1,
+			Rank:              rankAfter + i,
 			Score:             ps.Score,
 			PlayerID:          p.ID,
 			PlayerDisplayName: p.DisplayName,
