@@ -5,7 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f22393d0-d332-451f-ba79-01ae753207a3" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/compose.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go/isuports.go" beforeDir="false" afterPath="$PROJECT_DIR$/go/isuports.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,12 +29,16 @@
               <option name="branches">
                 <list>
                   <RecentBranch>
-                    <option name="branchName" value="replace-into" />
-                    <option name="lastUsedInstant" value="1658553538" />
+                    <option name="branchName" value="master" />
+                    <option name="lastUsedInstant" value="1658563683" />
                   </RecentBranch>
                   <RecentBranch>
-                    <option name="branchName" value="master" />
-                    <option name="lastUsedInstant" value="1658547781" />
+                    <option name="branchName" value="edit-infra-conf" />
+                    <option name="lastUsedInstant" value="1658563591" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="replace-into" />
+                    <option name="lastUsedInstant" value="1658553538" />
                   </RecentBranch>
                   <RecentBranch>
                     <option name="branchName" value="fix/makefile" />
@@ -115,5 +120,16 @@
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/go/isuports.go</url>
+          <line>168</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
