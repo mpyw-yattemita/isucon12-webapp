@@ -1190,6 +1190,16 @@ func competitionScoreHandler(c echo.Context) error {
 		//
 		//}
 	}
+	if len(args) >= 0 {
+		currentSql = strings.TrimSuffix(currentSql, ",")
+		currentSql += " ON CONFLICT(player_id, competition_id, tenant_id) DO UPDATE SET score=EXCLUDED.score, row_num=EXCLUDED.row_num, updated_at=EXCLUDED.updated_at"
+		go func(currentSql string, ps []interface{}) {
+			_, err := tenantDB.Exec(currentSql, args...)
+			if err != nil {
+				log.Errorf("Async insert error: %w\n", err)
+			}
+		}(currentSql, args)
+	}
 
 	return c.JSON(http.StatusOK, SuccessResult{
 		Status: true,
