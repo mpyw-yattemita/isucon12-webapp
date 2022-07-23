@@ -20,6 +20,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	goredis "github.com/go-redis/redis/v8"
@@ -713,48 +714,60 @@ func tenantsBillingHandler(c echo.Context) error {
 	if err := adminDB.SelectContext(ctx, &ts, "SELECT * FROM tenant ORDER BY id DESC"); err != nil {
 		return fmt.Errorf("error Select tenant: %w", err)
 	}
+
+	wg := sync.WaitGroup{}
 	tenantBillings := make([]TenantWithBilling, 0, len(ts))
-	for _, t := range ts {
+
+	for i, t := range ts {
 		if beforeID != 0 && beforeID <= t.ID {
 			continue
 		}
-		err := func(t TenantRow) error {
-			tb := TenantWithBilling{
-				ID:          strconv.FormatInt(t.ID, 10),
-				Name:        t.Name,
-				DisplayName: t.DisplayName,
-			}
-			tenantDB, err := connectToTenantDB(t.ID)
-			if err != nil {
-				return fmt.Errorf("failed to connectToTenantDB: %w", err)
-			}
-			defer tenantDB.Close()
-			cs := []CompetitionRow{}
-			if err := tenantDB.SelectContext(
-				ctx,
-				&cs,
-				"SELECT * FROM competition WHERE tenant_id=?",
-				t.ID,
-			); err != nil {
-				return fmt.Errorf("failed to Select competition: %w", err)
-			}
-			for _, comp := range cs {
-				report, err := billingReportByCompetition(ctx, tenantDB, t.ID, comp.ID)
-				if err != nil {
-					return fmt.Errorf("failed to billingReportByCompetition: %w", err)
+		go func(t TenantRow) {
+			wg.Add(1)
+			defer wg.Done()
+			err := func(t TenantRow) error {
+				tb := TenantWithBilling{
+					ID:          strconv.FormatInt(t.ID, 10),
+					Name:        t.Name,
+					DisplayName: t.DisplayName,
 				}
-				tb.BillingYen += report.BillingYen
+				tenantDB, err := connectToTenantDB(t.ID)
+				if err != nil {
+
+					return fmt.Errorf("failed to connectToTenantDB: %w", err)
+				}
+				defer tenantDB.Close()
+				cs := []CompetitionRow{}
+				if err := tenantDB.SelectContext(
+					ctx,
+					&cs,
+					"SELECT * FROM competition WHERE tenant_id=?",
+					t.ID,
+				); err != nil {
+					return fmt.Errorf("failed to Select competition: %w", err)
+				}
+				for _, comp := range cs {
+					report, err := billingReportByCompetition(ctx, tenantDB, t.ID, comp.ID)
+					if err != nil {
+						return fmt.Errorf("failed to billingReportByCompetition: %w", err)
+					}
+					tb.BillingYen += report.BillingYen
+				}
+				tenantBillings[i] = tb
+				return nil
+			}(t)
+			if err != nil {
+				log.Errorf("tenant go func error: %w\n", err)
 			}
-			tenantBillings = append(tenantBillings, tb)
-			return nil
 		}(t)
-		if err != nil {
-			return err
-		}
+		//if err != nil {
+		//	return err
+		//}
 		if len(tenantBillings) >= 10 {
 			break
 		}
 	}
+	wg.Wait()
 	return c.JSON(http.StatusOK, SuccessResult{
 		Status: true,
 		Data: TenantsBillingHandlerResult{
