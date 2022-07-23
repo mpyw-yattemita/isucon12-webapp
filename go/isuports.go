@@ -107,7 +107,7 @@ func createTenantDB(id int64) error {
 
 // システム全体で一意なIDを生成する
 func dispenseID(ctx context.Context) (string, error) {
-	id, err := uuid.NewRandom()
+	id, err := uuid.NewUUID()
 	if err != nil {
 		return "", err
 	}
