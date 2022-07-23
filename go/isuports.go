@@ -407,7 +407,6 @@ func retrievePlayersHash(ctx context.Context, tenantDB dbOrTx, ids []string) (Pl
 	}
 	currentSql = strings.TrimSuffix(currentSql, ",")
 	currentSql += ")"
-	log.Printf("SQL: %s\n", currentSql)
 	if err := tenantDB.SelectContext(ctx, &ps, currentSql, args...); err != nil {
 		return nil, fmt.Errorf("error Select mulitple players: ids={%s}, %w", ids, err)
 	}
