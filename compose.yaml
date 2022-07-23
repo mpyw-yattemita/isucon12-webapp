@@ -1,3 +1,5 @@
+version: 'Compose-Spec'
+
 services:
   webapp:
     build: ./go
