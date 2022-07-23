@@ -1160,7 +1160,7 @@ func competitionScoreHandler(c echo.Context) error {
 		if _, err := tenantDB.NamedExecContext(
 			ctx,
 			"INSERT INTO player_score(id, tenant_id, player_id, competition_id, score, row_num, created_at, updated_at) "+
-				"VALUES (?, ?, ?, ?, ?, ?, ?, ?) "+
+				"VALUES (:id, :tenant_id, :player_id, :competition_id, :score, :row_num, :created_at, :updated_at) "+
 				"ON CONFLICT(player_id, competition_id, tenant_id) DO UPDATE SET score=EXCLUDED.score, row_num=EXCLUDED.row_num, updated_at=EXCLUDED.updated_at",
 			ps,
 		); err != nil {
