@@ -396,7 +396,7 @@ func retrievePlayer(ctx context.Context, tenantDB dbOrTx, id string) (*PlayerRow
 type PlayerRowHash map[string]PlayerRow
 
 func retrievePlayersHash(ctx context.Context, tenantDB dbOrTx, ids []string) (PlayerRowHash, error) {
-	var hash PlayerRowHash
+	hash := make(map[string]PlayerRow, len(ids))
 	var ps []PlayerRow
 	originalSql := "SELECT * FROM player WHERE id IN (\"\"," // 空になるときの対策
 	currentSql := originalSql
