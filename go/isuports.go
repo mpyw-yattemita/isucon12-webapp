@@ -393,6 +393,29 @@ func retrievePlayer(ctx context.Context, tenantDB dbOrTx, id string) (*PlayerRow
 	return &p, nil
 }
 
+type PlayerRowHash map[string]PlayerRow
+
+func retrievePlayersHash(ctx context.Context, tenantDB dbOrTx, ids []string) (PlayerRowHash, error) {
+	var hash PlayerRowHash
+	var ps []PlayerRow
+	originalSql := "SELECT * FROM player WHERE id IN (\"\"," // 空になるときの対策
+	currentSql := originalSql
+	args := make([]interface{}, 0, len(ids))
+	for _, id := range ids {
+		currentSql += "?,"
+		args = append(args, id)
+	}
+	currentSql += strings.TrimSuffix(currentSql, ",")
+	currentSql += ")"
+	if err := tenantDB.SelectContext(ctx, &ps, originalSql, args...); err != nil {
+		return nil, fmt.Errorf("error Select mulitple players: ids={%s}, %w", ids, err)
+	}
+	for _, row := range ps {
+		hash[row.ID] = row
+	}
+	return hash, nil
+}
+
 // 参加者を認可する
 // 参加者向けAPIで呼ばれる
 func authorizePlayer(ctx context.Context, tenantDB dbOrTx, id string) error {
@@ -1396,6 +1419,16 @@ func competitionRankingHandler(c echo.Context) error {
 
 	ranks := make([]CompetitionRank, 0, len(pss))
 	scoredPlayerSet := make(map[string]struct{}, len(pss))
+
+	idArgs := make([]string, 0, len(pss))
+	for _, ps := range pss {
+		idArgs = append(idArgs, ps.PlayerID)
+	}
+	playersHash, err := retrievePlayersHash(ctx, tenantDB, idArgs)
+	if err != nil {
+		return fmt.Errorf("error retrievePlayersHash: %w", err)
+	}
+
 	for i, ps := range pss {
 		// player_scoreが同一player_id内ではrow_numの降順でソートされているので
 		// 現れたのが2回目以降のplayer_idはより大きいrow_numでスコアが出ているとみなせる
@@ -1403,9 +1436,13 @@ func competitionRankingHandler(c echo.Context) error {
 			continue
 		}
 		scoredPlayerSet[ps.PlayerID] = struct{}{}
-		p, err := retrievePlayer(ctx, tenantDB, ps.PlayerID)
-		if err != nil {
-			return fmt.Errorf("error retrievePlayer: %w", err)
+		//		p, err := retrievePlayer(ctx, tenantDB, ps.PlayerID)
+		//		if err != nil {
+		//			return fmt.Errorf("error retrievePlayer: %w", err)
+		//		}
+		p, ok := playersHash[ps.PlayerID]
+		if !ok {
+			return fmt.Errorf("error player not found in playersHash")
 		}
 		ranks = append(ranks, CompetitionRank{
 			Rank:              rankAfter + int64(i) + 1,
