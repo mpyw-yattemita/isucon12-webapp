@@ -740,6 +740,7 @@ func tenantsBillingHandler(c echo.Context) error {
 		wg.Add(1)
 		go func(i int, t TenantRow, ctx context.Context) {
 			defer wg.Done()
+			log.Printf("in goroutine[%d]: %d(Formatted:%s)\n", i, t.ID, strconv.FormatInt(t.ID, 10))
 			err := func(i int, t TenantRow, ctx context.Context) error {
 				tb := TenantWithBilling{
 					ID:          strconv.FormatInt(t.ID, 10),
