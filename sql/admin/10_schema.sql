@@ -11,7 +11,8 @@ CREATE TABLE `tenant` (
   `created_at` BIGINT NOT NULL,
   `updated_at` BIGINT NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`)
+  UNIQUE KEY `name` (`name`),
+  INDEX `idx_tenant`(`id`)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4;
 
 CREATE TABLE `id_generator` (
