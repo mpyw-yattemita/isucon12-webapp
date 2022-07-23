@@ -721,6 +721,7 @@ func tenantsBillingHandler(c echo.Context) error {
 	for i, t := range ts {
 		i := i
 		t := t
+		ctx := context.Background()
 		if beforeID != 0 && beforeID <= t.ID {
 			continue
 		}
