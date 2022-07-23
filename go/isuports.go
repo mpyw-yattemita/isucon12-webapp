@@ -160,20 +160,6 @@ func Run() {
 	}
 	defer sqlLogger.Close()
 
-	var app *newrelic.Application
-	app, err = newrelic.NewApplication(
-		newrelic.ConfigAppName(os.Getenv("NEW_RELIC_APP_NAME")),
-		newrelic.ConfigLicense(os.Getenv("NEW_RELIC_LICENSE_KEY")),
-		newrelic.ConfigAppLogEnabled(false),
-	)
-	if err != nil {
-		fmt.Errorf("failed to init newrelic NewApplication reaseon: %v", err)
-	} else {
-		fmt.Println("newrelic init success")
-	}
-
-	e.Use(nrecho.Middleware(app))
-
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(SetCacheControlPrivate)
