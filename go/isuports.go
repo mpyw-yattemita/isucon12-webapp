@@ -765,7 +765,7 @@ func tenantsBillingHandler(c echo.Context) error {
 		//if err != nil {
 		//	return err
 		//}
-		if len(tenantBillings) >= 10 {
+		if i >= 10 {
 			break
 		}
 	}
