@@ -738,7 +738,7 @@ func tenantsBillingHandler(c echo.Context) error {
 		//	continue
 		//}
 		wg.Add(1)
-		func(i int, t TenantRow, ctx context.Context) {
+		go func(i int, t TenantRow, ctx context.Context) {
 			defer wg.Done()
 			err := func(i int, t TenantRow, ctx context.Context) error {
 				tb := TenantWithBilling{
