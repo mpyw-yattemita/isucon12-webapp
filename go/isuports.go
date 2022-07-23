@@ -711,8 +711,14 @@ func tenantsBillingHandler(c echo.Context) error {
 	//   を合計したものを
 	// テナントの課金とする
 	ts := []TenantRow{}
-	if err := adminDB.SelectContext(ctx, &ts, "SELECT * FROM tenant ORDER BY id DESC"); err != nil {
-		return fmt.Errorf("error Select tenant: %w", err)
+	if beforeID == 0 {
+		if err := adminDB.SelectContext(ctx, &ts, "SELECT * FROM tenant ORDER BY id DESC LIMIT 10"); err != nil {
+			return fmt.Errorf("error Select tenant (first): %w", err)
+		}
+	} else {
+		if err := adminDB.SelectContext(ctx, &ts, "SELECT * FROM tenant WHERE id < ? ORDER BY id DESC LIMIT 10", beforeID); err != nil {
+			return fmt.Errorf("error Select tenant (paginated): %w", err)
+		}
 	}
 
 	wg := &sync.WaitGroup{}
@@ -722,9 +728,9 @@ func tenantsBillingHandler(c echo.Context) error {
 		i := i
 		t := t
 		ctx := context.Background()
-		if beforeID != 0 && beforeID <= t.ID {
-			continue
-		}
+		//if beforeID != 0 && beforeID <= t.ID {
+		//	continue
+		//}
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -766,9 +772,9 @@ func tenantsBillingHandler(c echo.Context) error {
 		//if err != nil {
 		//	return err
 		//}
-		if i >= 10 {
-			break
-		}
+		//if i >= 10 {
+		//	break
+		//}
 	}
 	wg.Wait()
 	return c.JSON(http.StatusOK, SuccessResult{
