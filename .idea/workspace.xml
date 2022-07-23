@@ -4,8 +4,7 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f22393d0-d332-451f-ba79-01ae753207a3" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/compose.yaml" afterDir="false" />
+    <list default="true" id="f22393d0-d332-451f-ba79-01ae753207a3" name="Changes" comment="resolve conflict">
       <change beforePath="$PROJECT_DIR$/go/isuports.go" beforeDir="false" afterPath="$PROJECT_DIR$/go/isuports.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -120,16 +119,5 @@
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/go/isuports.go</url>
-          <line>168</line>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

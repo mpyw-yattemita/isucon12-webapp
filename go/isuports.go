@@ -140,8 +140,7 @@ func SetCacheControlPrivate(next echo.HandlerFunc) echo.HandlerFunc {
 func Run() {
 	e := echo.New()
 	e.Debug = true
-	//e.Logger.SetLevel(log.DEBUG)
-
+	e.Logger.SetLevel(log.DEBUG)
 	var (
 		sqlLogger io.Closer
 		err       error
@@ -153,7 +152,7 @@ func Run() {
 	}
 	defer sqlLogger.Close()
 
-	//e.Use(middleware.Logger())
+	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(SetCacheControlPrivate)
 
