@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f22393d0-d332-451f-ba79-01ae753207a3" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="f22393d0-d332-451f-ba79-01ae753207a3" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -28,12 +26,12 @@
               <option name="branches">
                 <list>
                   <RecentBranch>
-                    <option name="branchName" value="replace-into" />
-                    <option name="lastUsedInstant" value="1658553538" />
+                    <option name="branchName" value="master" />
+                    <option name="lastUsedInstant" value="1658555666" />
                   </RecentBranch>
                   <RecentBranch>
-                    <option name="branchName" value="master" />
-                    <option name="lastUsedInstant" value="1658547781" />
+                    <option name="branchName" value="replace-into" />
+                    <option name="lastUsedInstant" value="1658553538" />
                   </RecentBranch>
                   <RecentBranch>
                     <option name="branchName" value="fix/makefile" />
