@@ -143,8 +143,15 @@ func Run() {
 	e.Logger.SetLevel(log.DEBUG)
 
 	var (
-		err error
+		sqlLogger io.Closer
+		err       error
 	)
+
+	sqliteDriverName, sqlLogger, err = initializeSQLLogger()
+	if err != nil {
+		e.Logger.Panicf("error initializeSQLLogger: %s", err)
+	}
+	defer sqlLogger.Close()
 
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
