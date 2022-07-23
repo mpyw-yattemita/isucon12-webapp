@@ -725,16 +725,16 @@ func tenantsBillingHandler(c echo.Context) error {
 	tenantBillings := make([]TenantWithBilling, len(ts), len(ts))
 
 	for i, t := range ts {
-		i := i
-		t := t
-		ctx := context.Background()
+		//i := i
+		//t := t
+		//ctx := context.Background()
 		//if beforeID != 0 && beforeID <= t.ID {
 		//	continue
 		//}
 		wg.Add(1)
-		go func() {
+		go func(i int, t TenantRow, ctx context.Context) {
 			defer wg.Done()
-			err := func() error {
+			err := func(i int, t TenantRow, ctx context.Context) error {
 				tb := TenantWithBilling{
 					ID:          strconv.FormatInt(t.ID, 10),
 					Name:        t.Name,
@@ -764,11 +764,11 @@ func tenantsBillingHandler(c echo.Context) error {
 				}
 				tenantBillings[i] = tb
 				return nil
-			}()
+			}(i, t, ctx)
 			if err != nil {
 				log.Errorf("tenant go func error: %w\n", err)
 			}
-		}()
+		}(i, t, ctx)
 		//if err != nil {
 		//	return err
 		//}
