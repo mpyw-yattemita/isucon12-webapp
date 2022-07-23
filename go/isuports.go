@@ -716,14 +716,14 @@ func tenantsBillingHandler(c echo.Context) error {
 			return fmt.Errorf("error Select tenant (first): %w", err)
 		}
 		for i, t := range ts {
-			log.Printf("first[%d]: %s\n", i, t.ID)
+			log.Printf("first[%d]: %d\n", i, t.ID)
 		}
 	} else {
 		if err := adminDB.SelectContext(ctx, &ts, "SELECT * FROM tenant WHERE id < ? ORDER BY id DESC LIMIT 10", beforeID); err != nil {
 			return fmt.Errorf("error Select tenant (paginated): %w", err)
 		}
 		for i, t := range ts {
-			log.Printf("paginated(before_id=%d)[%d]: %s\n", beforeID, i, t.ID)
+			log.Printf("paginated(before_id=%d)[%d]: %d\n", beforeID, i, t.ID)
 		}
 	}
 
