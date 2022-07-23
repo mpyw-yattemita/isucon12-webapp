@@ -1402,11 +1402,17 @@ func competitionRankingHandler(c echo.Context) error {
 	}
 
 	// player_scoreを読んでいるときに更新が走ると不整合が起こるのでロックを取得する
-	fl, err := flockByTenantID(v.tenantID)
+	//fl, err := flockByTenantID(v.tenantID)
+	//if err != nil {
+	//	return fmt.Errorf("error flockByTenantID: %w", err)
+	//}
+	//defer fl.Close()
+	tx, err := tenantDB.Begin()
 	if err != nil {
-		return fmt.Errorf("error flockByTenantID: %w", err)
+		return fmt.Errorf("Failed to begin transaction: %w\n", err)
 	}
-	defer fl.Close()
+	defer tx.Rollback()
+
 	pss := []PlayerScoreRow{}
 	if err := tenantDB.SelectContext(
 		ctx,
@@ -1429,6 +1435,11 @@ func competitionRankingHandler(c echo.Context) error {
 	playersHash, err := retrievePlayersHash(ctx, tenantDB, idArgs)
 	if err != nil {
 		return fmt.Errorf("error retrievePlayersHash: %w", err)
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return fmt.Errorf("Failed to commit: %w\n", err)
 	}
 
 	for i, ps := range pss {
