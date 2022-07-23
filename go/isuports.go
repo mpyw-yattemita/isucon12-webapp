@@ -1408,7 +1408,7 @@ func competitionRankingHandler(c echo.Context) error {
 			return fmt.Errorf("error retrievePlayer: %w", err)
 		}
 		ranks = append(ranks, CompetitionRank{
-			Rank:              rankAfter + i,
+			Rank:              rankAfter + int64(i),
 			Score:             ps.Score,
 			PlayerID:          p.ID,
 			PlayerDisplayName: p.DisplayName,
