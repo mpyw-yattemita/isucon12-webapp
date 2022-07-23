@@ -15,6 +15,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/go-sql-driver/mysql"
@@ -685,51 +686,93 @@ func tenantsBillingHandler(c echo.Context) error {
 	//   を合計したものを
 	// テナントの課金とする
 	ts := []TenantRow{}
-	if err := adminDB.SelectContext(ctx, &ts, "SELECT * FROM tenant ORDER BY id DESC"); err != nil {
-		return fmt.Errorf("error Select tenant: %w", err)
-	}
-	tenantBillings := make([]TenantWithBilling, 0, len(ts))
-	for _, t := range ts {
-		if beforeID != 0 && beforeID <= t.ID {
-			continue
+	if beforeID == 0 {
+		if err := adminDB.SelectContext(ctx, &ts, "SELECT * FROM tenant ORDER BY id DESC"); err != nil {
+			return fmt.Errorf("error Select tenant (first): %w", err)
 		}
-		err := func(t TenantRow) error {
-			tb := TenantWithBilling{
-				ID:          strconv.FormatInt(t.ID, 10),
-				Name:        t.Name,
-				DisplayName: t.DisplayName,
-			}
-			tenantDB, err := connectToTenantDB(t.ID)
-			if err != nil {
-				return fmt.Errorf("failed to connectToTenantDB: %w", err)
-			}
-			defer tenantDB.Close()
-			cs := []CompetitionRow{}
-			if err := tenantDB.SelectContext(
-				ctx,
-				&cs,
-				"SELECT * FROM competition WHERE tenant_id=?",
-				t.ID,
-			); err != nil {
-				return fmt.Errorf("failed to Select competition: %w", err)
-			}
-			for _, comp := range cs {
-				report, err := billingReportByCompetition(ctx, tenantDB, t.ID, comp.ID)
-				if err != nil {
-					return fmt.Errorf("failed to billingReportByCompetition: %w", err)
+		for i, t := range ts {
+			log.Printf("1:first[%d]: %d\n", i, t.ID)
+		}
+		ts = []TenantRow{}
+		if err := adminDB.SelectContext(ctx, &ts, "SELECT * FROM tenant ORDER BY id DESC LIMIT 10"); err != nil {
+			return fmt.Errorf("error Select tenant (first): %w", err)
+		}
+		for i, t := range ts {
+			log.Printf("2:first[%d]: %d\n", i, t.ID)
+		}
+	} else {
+		if err := adminDB.SelectContext(ctx, &ts, "SELECT * FROM tenant WHERE id < ? ORDER BY id DESC LIMIT 10", beforeID); err != nil {
+			return fmt.Errorf("error Select tenant (paginated): %w", err)
+		}
+		for i, t := range ts {
+			log.Printf("1:paginated(before_id=%d)[%d]: %d\n", beforeID, i, t.ID)
+		}
+		ts = []TenantRow{}
+		if err := adminDB.SelectContext(ctx, &ts, "SELECT * FROM tenant WHERE id < ? ORDER BY id DESC LIMIT 10", beforeID); err != nil {
+			return fmt.Errorf("error Select tenant (paginated): %w", err)
+		}
+		for i, t := range ts {
+			log.Printf("2:paginated(before_id=%d)[%d]: %d\n", beforeID, i, t.ID)
+		}
+	}
+
+	wg := &sync.WaitGroup{}
+	tenantBillings := make([]TenantWithBilling, len(ts), len(ts))
+
+	for i, t := range ts {
+		//i := i
+		//t := t
+		//ctx := context.Background()
+		//if beforeID != 0 && beforeID <= t.ID {
+		//	continue
+		//}
+		wg.Add(1)
+		go func(i int, t TenantRow, ctx context.Context) {
+			defer wg.Done()
+			log.Printf("in goroutine[%d]: %d(Formatted:%s)\n", i, t.ID, strconv.FormatInt(t.ID, 10))
+			err := func(i int, t TenantRow, ctx context.Context) error {
+				tb := TenantWithBilling{
+					ID:          strconv.FormatInt(t.ID, 10),
+					Name:        t.Name,
+					DisplayName: t.DisplayName,
 				}
-				tb.BillingYen += report.BillingYen
+				tenantDB, err := connectToTenantDB(t.ID)
+				if err != nil {
+
+					return fmt.Errorf("failed to connectToTenantDB: %w", err)
+				}
+				defer tenantDB.Close()
+				cs := []CompetitionRow{}
+				if err := tenantDB.SelectContext(
+					ctx,
+					&cs,
+					"SELECT * FROM competition WHERE tenant_id=?",
+					t.ID,
+				); err != nil {
+					return fmt.Errorf("failed to Select competition: %w", err)
+				}
+				for _, comp := range cs {
+					report, err := billingReportByCompetition(ctx, tenantDB, t.ID, comp.ID)
+					if err != nil {
+						return fmt.Errorf("failed to billingReportByCompetition: %w", err)
+					}
+					tb.BillingYen += report.BillingYen
+				}
+				tenantBillings[i] = tb
+				return nil
+			}(i, t, ctx)
+			if err != nil {
+				log.Errorf("tenant go func error: %w\n", err)
 			}
-			tenantBillings = append(tenantBillings, tb)
-			return nil
-		}(t)
-		if err != nil {
-			return err
-		}
-		if len(tenantBillings) >= 10 {
-			break
-		}
+		}(i, t, ctx)
+		//if err != nil {
+		//	return err
+		//}
+		//if i >= 10 {
+		//	break
+		//}
 	}
+	wg.Wait()
 	return c.JSON(http.StatusOK, SuccessResult{
 		Status: true,
 		Data: TenantsBillingHandlerResult{
