@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f22393d0-d332-451f-ba79-01ae753207a3" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/compose.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go/isuports.go" beforeDir="false" afterPath="$PROJECT_DIR$/go/isuports.go" afterDir="false" />
-    </list>
+    <list default="true" id="32d5d236-d1b3-4eff-b278-331b8bb17c1f" name="Changes" comment="resolve conflict" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -117,6 +114,10 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="resolve conflict" />
+    <option name="LAST_COMMIT_MESSAGE" value="resolve conflict" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
